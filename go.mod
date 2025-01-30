@@ -3,7 +3,7 @@ module github.com/xmidt-org/clifx
 go 1.23.3
 
 require (
-	github.com/alecthomas/kong v1.6.1
+	github.com/alecthomas/kong v1.7.0
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/fx v1.23.0
 )
