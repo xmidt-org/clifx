@@ -81,13 +81,34 @@ clifx.Provide[MyCLI](
 By default, `kong` will invoke `os.Exit(1)` anytime a parse fails. You can suppress this easily by providing a noop **Exit** function.  `clifx` provides a `kong` option for this purpose:
 
 ```go
-clifx.Provide[MyCLI](
-  clifx.StandardArguments(),
-  clifx.SuppressExit(),
-)
-```
+import github.com/xmidt-org/clifx
 
-With the above setup, `app.Err()` can be used to retrieve the `kong` parse error.
+type MyCLI struct {
+  Debug bool
+  Files []string
+}
+
+func main() {
+  app := fx.New(
+    clifx.Provide[MyCLI](
+      clifx.StandardArguments(),
+      clifx.SuppressExit(),
+    ),
+  
+    fx.Invoke(
+      func(cli MyCLI) error {
+        return nil
+      },
+    ),
+  )
+
+  // since we didn't exit the process, we can test app.Err()
+  var pe *kong.ParseError
+  if errors.As(app.Err(), &pe) {
+    // custom behavior in reaction to a bad command-line
+  }
+}
+```
 
 ## Custom arguments
 
