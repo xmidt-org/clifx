@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Comcast Cable Communications Management, LLC
+// SPDX-FileCopyrightText: 2025 Comcast Cable Communications Management, LLC
 // SPDX-License-Identifier: Apache-2.0
 
 package clifx
@@ -12,58 +12,29 @@ import (
 
 // ExampleProvide_basic shows how to bootstrap a basic command line using clifx.
 func ExampleProvide_basic() {
-	var cli *CommandLine
-	var kctx *kong.Context // this is completely optional
+	type cli struct {
+		Address string `short:"a"`
+	}
+
+	var c cli
+	var kctx *kong.Context
+
 	fx.New(
 		fx.NopLogger,
-
-		// if we don't supply any arguments, clifx will use os.Args[1:]
-		fx.Supply(
-			Arguments{
-				"-f", "/path/to/configfile.yml",
-			},
-		),
-
-		Provide(
-			SuppressExit(), // in case of an error, prevent this example from calling os.Exit
+		Provide[cli](
+			AsArguments("-a", ":8080"), // can use StandardArguments here to pass the process command-line arguments
+			SuppressExit(),             // in case of an error, prevent this example from calling os.Exit
 		),
 		fx.Populate(
-			&cli,
+			&c,
 			&kctx,
 		),
 	)
 
-	fmt.Println(cli.ConfigFile)
+	fmt.Println(c.Address)
 	fmt.Println(kctx.Args)
 
 	// Output:
-	// /path/to/configfile.yml
-	// [-f /path/to/configfile.yml]
-}
-
-// ExampleProvide_custom shows how to use a custom command line object.
-func ExampleProvide_custom() {
-	type CustomCommandLine struct {
-		TurnSomethingOn bool `name:"on" optional:"" help:"this is just an example"`
-	}
-
-	var cli *CustomCommandLine
-
-	fx.New(
-		fx.NopLogger,
-		SupplyArguments(
-			"--on",
-		),
-		ProvideCustom[CustomCommandLine](
-			SuppressExit(),
-		),
-		fx.Populate(
-			&cli,
-		),
-	)
-
-	fmt.Println(cli.TurnSomethingOn)
-
-	// Output:
-	// true
+	// :8080
+	// [-a :8080]
 }
