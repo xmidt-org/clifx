@@ -54,7 +54,6 @@ func main() {
     // a component of type MyCLI will now
     // be available for dependency injection.
     // For example:
-  
     fx.Invoke(
       func(cli MyCLI) error {
         // do things
@@ -62,7 +61,16 @@ func main() {
       },
     ),
 
-    // the kong.Context can be used to run the CLI
+    // you can bind dependencies to the kong.Context.  if desired,
+    // you must do this before calling kong.Context.Run:
+    fx.Supply("dependency"),
+    fx.Invoke(
+      func(kctx *kong.Context, dependency string) {
+        kctx.Bind(dependency) // this is now available in CLI methods
+      }
+    ),
+
+    // the kong.Context can be used to run the CLI:
     fx.Invoke(
       func(kctx *kong.Context, sh fx.Shutdowner) error {
         defer sh.Shutdown() // optional: this ensures the App exits from Run when the CLI is finished
