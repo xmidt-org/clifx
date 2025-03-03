@@ -17,6 +17,7 @@ Provides basic bootstrapping for a parsed command line into an [fx.App](https://
 - [Installation](#installation)
 - [Usage](#usage)
   - [Basic](#basic)
+  - [Lifecycle](#lifecycle)
   - [Custom Options](#custom-options)
   - [Suppressing os.Exit](#suppressing-osexit)
   - [Custom Arguments](#custom-arguments)
@@ -70,14 +71,57 @@ func main() {
       }
     ),
 
-    // the kong.Context can be used to run the CLI:
+    // the kong.Context can be used to run the CLI.
+    // This will cause fx.New to run the command:
     fx.Invoke(
       func(kctx *kong.Context, sh fx.Shutdowner) error {
-        defer sh.Shutdown() // optional: this ensures the App exits from Run when the CLI is finished
+        defer sh.Shutdown() // optional: this ensures the app exits from app.New
         return kctx.Run() // you could pass dependencies to Run
       },
     )
   )
+}
+```
+
+### Lifecycle
+
+You can bind a CLI to the `fx.Lifecycle` in the same way as any other component. For example,
+it's common to want to run the CLI when `fx.App.Run` is called, then shutdown the app when finished:
+
+```go
+import github.com/xmidt-org/clifx
+
+type MyCLI struct {
+  Debug bool
+  Files []string
+}
+
+func main() {
+  app := fx.New(
+    clifx.Provide[MyCLI](
+      clifx.StandardArguments(),
+    ),
+
+    fx.Invoke(
+      func(kctx *kong.Context, l fx.Lifecycle, sh fx.Shutdowner /* any other dependencies from the enclosing app */) {
+        l.Append(fx.Hook{
+          OnStart: func(_ context.Context) error {
+            // optional:  this just exits from app.Run when the CLI is done.
+            // without this, app.Run will not return until explicitly stopped, such as
+            // by hitting ctrl+C at a console.
+            defer sh.Shutdown()
+
+            // don't forget:  you can pass dependencies from the enclosing app here
+            return kctx.Run()
+          },
+        })
+      },
+    ),
+  )
+
+  // this now causes the CLI to be executed.  Any error that is returned will be
+  // from the CLI tool.
+  app.Run()
 }
 ```
 
