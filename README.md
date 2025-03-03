@@ -16,9 +16,10 @@ Provides basic bootstrapping for a parsed command line into an [fx.App](https://
 - [Code of Conduct](#code-of-conduct)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Custom Options](#custom-options)
-- [Suppressing os.Exit](#suppressing-osexit)
-- [Custom Arguments](#custom-arguments)
+  - [Basic](#basic)
+  - [Custom Options](#custom-options)
+  - [Suppressing os.Exit](#suppressing-osexit)
+  - [Custom Arguments](#custom-arguments)
 - [Contributing](#contributing)
 
 ## Code of Conduct
@@ -34,7 +35,7 @@ go get github.com/xmidt-org/clifx@latest
 
 ## Usage
 
-### Basic Usage
+### Basic
 
 ```go
 import github.com/xmidt-org/clifx
