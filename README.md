@@ -15,7 +15,7 @@ Provides basic bootstrapping for a parsed command line into an [fx.App](https://
 
 - [Code of Conduct](#code-of-conduct)
 - [Installation](#installation)
-- [Basic Usage](#basic-usage)
+- [Usage](#usage)
 - [Custom Options](#custom-options)
 - [Suppressing os.Exit](#suppressing-osexit)
 - [Custom Arguments](#custom-arguments)
@@ -32,7 +32,9 @@ By participating, you agree to this Code.
 go get github.com/xmidt-org/clifx@latest
 ```
 
-## Basic Usage
+## Usage
+
+### Basic Usage
 
 ```go
 import github.com/xmidt-org/clifx
@@ -58,13 +60,19 @@ func main() {
         return nil
       },
     ),
+
+    // the kong.Context can be used to run the CLI
+    fx.Invoke(
+      func(kctx *kong.Context, sh fx.Shutdowner) error {
+        defer sh.Shutdown() // optional: this ensures the App exits from Run when the CLI is finished
+        return kctx.Run() // you could pass dependencies to Run
+      },
+    )
   )
 }
 ```
 
-See the examples for additional details.
-
-## Custom options
+### Custom options
 
 You can supply custom any number of `kong` options to `Provide`.
 
@@ -76,7 +84,7 @@ clifx.Provide[MyCLI](
 )
 ```
 
-## Suppressing os.Exit
+### Suppressing os.Exit
 
 By default, `kong` will invoke `os.Exit(1)` anytime a parse fails. You can suppress this easily by providing a noop **Exit** function.  `clifx` provides a `kong` option for this purpose:
 
@@ -110,7 +118,7 @@ func main() {
 }
 ```
 
-## Custom arguments
+### Custom arguments
 
 `clifx.StandardArguments` returns the command-line passed to the process. You can supply an arguments you like, which is useful for testing or interactive use:
 
