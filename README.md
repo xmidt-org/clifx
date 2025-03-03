@@ -15,10 +15,12 @@ Provides basic bootstrapping for a parsed command line into an [fx.App](https://
 
 - [Code of Conduct](#code-of-conduct)
 - [Installation](#installation)
-- [Basic Usage](#basic-usage)
-- [Custom Options](#custom-options)
-- [Suppressing os.Exit](#suppressing-osexit)
-- [Custom Arguments](#custom-arguments)
+- [Usage](#usage)
+  - [Basic](#basic)
+  - [Lifecycle](#lifecycle)
+  - [Custom Options](#custom-options)
+  - [Suppressing os.Exit](#suppressing-osexit)
+  - [Custom Arguments](#custom-arguments)
 - [Contributing](#contributing)
 
 ## Code of Conduct
@@ -32,7 +34,9 @@ By participating, you agree to this Code.
 go get github.com/xmidt-org/clifx@latest
 ```
 
-## Basic Usage
+## Usage
+
+### Basic
 
 ```go
 import github.com/xmidt-org/clifx
@@ -51,20 +55,77 @@ func main() {
     // a component of type MyCLI will now
     // be available for dependency injection.
     // For example:
-  
     fx.Invoke(
       func(cli MyCLI) error {
         // do things
         return nil
       },
     ),
+
+    // you can bind dependencies to the kong.Context.  if desired,
+    // you must do this before calling kong.Context.Run:
+    fx.Supply("dependency"),
+    fx.Invoke(
+      func(kctx *kong.Context, dependency string) {
+        kctx.Bind(dependency) // this is now available in CLI methods
+      }
+    ),
+
+    // the kong.Context can be used to run the CLI.
+    // This will cause fx.New to run the command:
+    fx.Invoke(
+      func(kctx *kong.Context, sh fx.Shutdowner) error {
+        defer sh.Shutdown() // optional: this ensures the app exits from app.New
+        return kctx.Run() // you could pass dependencies to Run
+      },
+    )
   )
 }
 ```
 
-See the examples for additional details.
+### Lifecycle
 
-## Custom options
+You can bind a CLI to the `fx.Lifecycle` in the same way as any other component. For example,
+it's common to want to run the CLI when `fx.App.Run` is called, then shutdown the app when finished:
+
+```go
+import github.com/xmidt-org/clifx
+
+type MyCLI struct {
+  Debug bool
+  Files []string
+}
+
+func main() {
+  app := fx.New(
+    clifx.Provide[MyCLI](
+      clifx.StandardArguments(),
+    ),
+
+    fx.Invoke(
+      func(kctx *kong.Context, l fx.Lifecycle, sh fx.Shutdowner /* any other dependencies from the enclosing app */) {
+        l.Append(fx.Hook{
+          OnStart: func(_ context.Context) error {
+            // optional:  this just exits from app.Run when the CLI is done.
+            // without this, app.Run will not return until explicitly stopped, such as
+            // by hitting ctrl+C at a console.
+            defer sh.Shutdown()
+
+            // don't forget:  you can pass dependencies from the enclosing app here
+            return kctx.Run()
+          },
+        })
+      },
+    ),
+  )
+
+  // this now causes the CLI to be executed.  Any error that is returned will be
+  // from the CLI tool.
+  app.Run()
+}
+```
+
+### Custom options
 
 You can supply custom any number of `kong` options to `Provide`.
 
@@ -76,7 +137,7 @@ clifx.Provide[MyCLI](
 )
 ```
 
-## Suppressing os.Exit
+### Suppressing os.Exit
 
 By default, `kong` will invoke `os.Exit(1)` anytime a parse fails. You can suppress this easily by providing a noop **Exit** function.  `clifx` provides a `kong` option for this purpose:
 
@@ -110,7 +171,7 @@ func main() {
 }
 ```
 
-## Custom arguments
+### Custom arguments
 
 `clifx.StandardArguments` returns the command-line passed to the process. You can supply an arguments you like, which is useful for testing or interactive use:
 
