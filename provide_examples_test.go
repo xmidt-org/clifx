@@ -54,7 +54,7 @@ func ExampleProvide_run() {
 		),
 		fx.Invoke(
 			func(kctx *kong.Context, sh fx.Shutdowner, value int) error {
-				defer sh.Shutdown()
+				defer sh.Shutdown() //nolint: errcheck
 				fmt.Println(kctx.Args)
 				fmt.Println(value)
 
