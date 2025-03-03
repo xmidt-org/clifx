@@ -7,15 +7,23 @@ Provides basic bootstrapping for a parsed command line into an [fx.App](https://
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
+- [Installation](#installation)
 - [Basic Usage](#basic-usage)
 - [Custom Options](#custom-options)
 - [Suppressing os.Exit](#suppressing-osexit)
 - [Custom Arguments](#custom-arguments)
+- [Contributing](#contributing)
 
 ## Code of Conduct
 
-This project and everyone participating in it are governed by the [XMiDT Code Of Conduct](https://xmidt.io/code_of_conduct/). 
+This project and everyone participating in it are governed by the [XMiDT Code Of Conduct](https://xmidt.io/code_of_conduct/).
 By participating, you agree to this Code.
+
+## Installation
+
+```shell
+go get github.com/xmidt-org/clifx@latest
+```
 
 ## Basic Usage
 
@@ -40,6 +48,7 @@ func main() {
     fx.Invoke(
       func(cli MyCLI) error {
         // do things
+        return nil
       },
     ),
   )
@@ -82,3 +91,8 @@ clifx.Provide[MyCLI](
   clifx.AsArguments("--bind", ":8080", "-v"),
 )
 ```
+
+## Contributing
+
+Refer to [CONTRIBUTING.md](CONTRIBUTING.md).
+
