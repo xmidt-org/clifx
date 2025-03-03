@@ -1,5 +1,12 @@
 # clifx
 
+[![Build Status](https://github.com/xmidt-org/clifx/actions/workflows/ci.yml/badge.svg)](https://github.com/xmidt-org/clifx/actions/workflows/ci.yml)
+[![codecov.io](http://codecov.io/github/xmidt-org/clifx/coverage.svg?branch=main)](http://codecov.io/github/xmidt-org/clifx?branch=main)
+[![Go Report Card](https://goreportcard.com/badge/github.com/xmidt-org/clifx)](https://goreportcard.com/report/github.com/xmidt-org/clifx)
+[![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/xmidt-org/clifx/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/release/xmidt-org/clifx.svg)](CHANGELOG.md)
+[![GoDoc](https://pkg.go.dev/badge/github.com/xmidt-org/clifx)](https://pkg.go.dev/github.com/xmidt-org/clifx)
+
 ## Summary
 
 Provides basic bootstrapping for a parsed command line into an [fx.App](https://pkg.go.dev/go.uber.org/fx#App). [Kong](https://pkg.go.dev/github.com/alecthomas/kong) is used to parse a command line into an arbitrary `golang` **struct**.
