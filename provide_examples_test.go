@@ -39,7 +39,7 @@ func ExampleProvide_basic() {
 	// [-a :8080]
 }
 
-// ExampleProvide_run shows how to execute a CLI as part of app.Run().
+// ExampleProvide_run shows how to execute a CLI as part of fx.New().
 func ExampleProvide_run() {
 	type cli struct {
 		Address string `short:"a"`
